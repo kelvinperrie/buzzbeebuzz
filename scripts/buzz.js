@@ -19,6 +19,7 @@ var BeeModel = function() {
     self.id = "";
     self.fullId = "";
 
+    self.phrases = ["buzzzzzzz ","zzzzzzzzz ","buzz ","bbbzzzzzzzzzzzzzz "];
     self.currentPhrase = "buzzzzzzz ";
     self.phraseIndex = 0;
 
@@ -32,7 +33,6 @@ var BeeModel = function() {
 
         output = self.currentPhrase[self.phraseIndex];
 
-        //var noiseHtml = "<div class='sound' style='css : { transform: \"rotate("+self.currentAngle+"deg)\", left : "+self.position.x+", top: "+self.position.y+" }'>"+output+"</div>";
         var noiseHtml = "<div class='sound' style='transform: rotate("+self.currentAngle+"deg); left : "+self.position.x+"px; top: "+self.position.y+"px'>"+output+"</div>";
         
         // this is a lazy way to put the noise slightly behind the bee
@@ -40,6 +40,9 @@ var BeeModel = function() {
 
         self.phraseIndex += 1;
         if(self.phraseIndex >= self.currentPhrase.length) {
+            // we've completed the current phrase, let's get a new one!
+            var newIndex = randomIntFromInterval(0,self.phrases.length -1);
+            self.currentPhrase = self.phrases[newIndex];
             self.phraseIndex = 0;
         }
     };
