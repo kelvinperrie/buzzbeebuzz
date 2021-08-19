@@ -19,15 +19,33 @@ var BeeModel = function() {
     self.id = "";
     self.fullId = "";
 
-
+    self.currentPhrase = "buzzzzzzz ";
+    self.phraseIndex = 0;
 
     self.UpdateVisualLocation = function() {
         $(self.fullId).css({ left: self.position.x, top: self.position.y });
         $(self.fullId).css({ transform: "rotate("+self.currentAngle+"deg)" });
     };
+
+    self.MakeNoise = function() {
+        var output = "";
+
+        output = self.currentPhrase[self.phraseIndex];
+
+        //var noiseHtml = "<div class='sound' style='css : { transform: \"rotate("+self.currentAngle+"deg)\", left : "+self.position.x+", top: "+self.position.y+" }'>"+output+"</div>";
+        var noiseHtml = "<div class='sound' style='transform: rotate("+self.currentAngle+"deg); left : "+self.position.x+"px; top: "+self.position.y+"px'>"+output+"</div>";
+        
+        // this is a lazy way to put the noise slightly behind the bee
+        setTimeout(function() { $("body").append(noiseHtml); }, 300);
+
+        self.phraseIndex += 1;
+        if(self.phraseIndex >= self.currentPhrase.length) {
+            self.phraseIndex = 0;
+        }
+    };
     
     self.Move = function() {
-        var movementLength = 2;
+        var movementLength = 3;
         // move forward based on our current angle
         var theta_radians = (self.currentAngle) * (Math.PI/180);
 
@@ -52,7 +70,7 @@ var BeeModel = function() {
             } else if (self.turningOrStraight === turningRight) {
                 self.currentAngle += angleChange;
             }
-            console.log("new angle is " + self.currentAngle);
+            //console.log("new angle is " + self.currentAngle);
         } else {
             // ok, we're going to change direction
             var directionChange= randomIntFromInterval(0,1);
@@ -67,7 +85,7 @@ var BeeModel = function() {
             if(self.turningOrStraight > 3) {
                 self.turningOrStraight = 1;
             }
-            console.log("changed to " + self.turningOrStraight);
+            //console.log("changed to " + self.turningOrStraight);
         }
 
     };
@@ -77,11 +95,22 @@ var BeeModel = function() {
         setTimeout(self.MoveLoop, 100);
     };
     self.MoveLoop();
+    self.NoiseLoop = function() {
+        self.MakeNoise();
+        setTimeout(self.NoiseLoop, 300);
+    };
+    setTimeout(self.NoiseLoop, 300);
 
     self.Initialize = function() {
         beeCounter += 1;
         self.id = "bee"+ beeCounter;
         self.fullId = "#"+self.id;
+
+        var x = randomIntFromInterval(100,800);
+        var y = randomIntFromInterval(100,500);
+        self.position.x = x;
+        self.position.y = y;
+        self.currentAngle = randomIntFromInterval(0,360);
 
         var beeHtml = "<div class='bee' id='"+self.id+"'>bee</div>";
         $("body").append(beeHtml);
@@ -92,3 +121,5 @@ var BeeModel = function() {
 };
 
 var bee1 = new BeeModel();
+//var bee2 = new BeeModel();
+//var bee3 = new BeeModel();

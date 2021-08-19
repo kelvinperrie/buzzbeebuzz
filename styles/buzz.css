@@ -2,3 +2,7 @@
 .bee {
     position: absolute;
 }
+.sound {
+    position: absolute;
+    font-size: .6em;
+}
