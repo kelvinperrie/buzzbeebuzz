@@ -4,10 +4,11 @@ function randomIntFromInterval(min, max) {
   }
 
 var beeCounter = 0;
+var noiseCounter = 0;
 
-var turningLeft = 1;
-var goingStraight = 2;
-var turningRight = 3;
+const turningLeft = 1;
+const goingStraight = 2;
+const turningRight = 3;
 
 var BeeModel = function() {
 
@@ -28,55 +29,73 @@ var BeeModel = function() {
         $(self.fullId).css({ transform: "rotate("+self.currentAngle+"deg)" });
     };
 
+    /*
+    generate a buzz trail of text behind the bee
+    */
     self.MakeNoise = function() {
-        var output = "";
+        let output = "";
 
         output = self.currentPhrase[self.phraseIndex];
 
-        var noiseHtml = "<div class='sound' style='transform: rotate("+self.currentAngle+"deg); left : "+self.position.x+"px; top: "+self.position.y+"px'>"+output+"</div>";
+        noiseCounter += 1;
+        let noiseId = "noise" + noiseCounter;
+        let noiseHtml = "<div class='sound' id='"+noiseId+"' style='transform: rotate("+self.currentAngle+"deg); left : "+self.position.x+"px; top: "+self.position.y+"px'>"+output+"</div>";
         
         // this is a lazy way to put the noise slightly behind the bee
         setTimeout(function() { $("body").append(noiseHtml); }, 300);
+        setTimeout(function() { 
+            console.log("going to hide " + noiseId);
+            $("#"+noiseId).hide(10000, function() {
+                console.log("hiding complete for " + noiseId);
+                $("#"+noiseId).remove();
+            }); 
+        }, 2000);
+        
 
         self.phraseIndex += 1;
         if(self.phraseIndex >= self.currentPhrase.length) {
             // we've completed the current phrase, let's get a new one!
-            var newIndex = randomIntFromInterval(0,self.phrases.length -1);
+            let newIndex = randomIntFromInterval(0,self.phrases.length -1);
             self.currentPhrase = self.phrases[newIndex];
             self.phraseIndex = 0;
         }
     };
     
     self.Move = function() {
-        var movementLength = 3;
+        const movementLength = 3;
         // move forward based on our current angle
-        var theta_radians = (self.currentAngle) * (Math.PI/180);
+        let theta_radians = (self.currentAngle) * (Math.PI/180);
 
         // what is the adjacent (X)
-        var adjacent = Math.cos(theta_radians) * movementLength;
+        let adjacent = Math.cos(theta_radians) * movementLength;
         // what is the opposite (Y)
-        var opposite = Math.sin(theta_radians) * movementLength;
+        let opposite = Math.sin(theta_radians) * movementLength;
 
         self.position.x = self.position.x + adjacent;
         self.position.y = self.position.y + opposite;
 
         self.UpdateVisualLocation();
     };
+    /*
+    This methods decides if the bee wants to change direction - we try to keep doing whatever the bee is currently doing
+    e.g. if it is turning left then there is a 90% change it will keep doing that
+    */
     self.MaybeChangeDirection = function() {
-        var angleChange = 5;
+        const angleChange = 5;    // how much do we turn by in degrees
         // mostly stick to the direction we're going in
-        var keepDoingWhatWereDoing = randomIntFromInterval(1,100);
-        //console.log("keepGoing is " + keepDoingWhatWereDoing);
+        let keepDoingWhatWereDoing = randomIntFromInterval(1,100);
         if(keepDoingWhatWereDoing <= 90) {
+            // we're going to keep doing what we're doing, so if we're turning then change the angle some more
             if(self.turningOrStraight === turningLeft) {
                 self.currentAngle -= angleChange;
             } else if (self.turningOrStraight === turningRight) {
                 self.currentAngle += angleChange;
             }
-            //console.log("new angle is " + self.currentAngle);
         } else {
             // ok, we're going to change direction
-            var directionChange= randomIntFromInterval(0,1);
+            // we have the three values 1,2,3 for turningOrStraight which represent left, straight, right
+            // we either set out turningOrStraight to plus one or minus one, then if it is outside of the values 1 to 3 we correct it
+            let directionChange= randomIntFromInterval(0,1);
             if(directionChange === 0) {
                 self.turningOrStraight -= 1;
             } else {
@@ -88,7 +107,6 @@ var BeeModel = function() {
             if(self.turningOrStraight > 3) {
                 self.turningOrStraight = 1;
             }
-            //console.log("changed to " + self.turningOrStraight);
         }
 
     };
@@ -102,20 +120,20 @@ var BeeModel = function() {
         self.MakeNoise();
         setTimeout(self.NoiseLoop, 300);
     };
-    setTimeout(self.NoiseLoop, 300);
+    setTimeout(self.NoiseLoop, 300);    // start making noise after a little pause
 
     self.Initialize = function() {
         beeCounter += 1;
         self.id = "bee"+ beeCounter;
         self.fullId = "#"+self.id;
 
-        var x = randomIntFromInterval(100,800);
-        var y = randomIntFromInterval(100,500);
+        let x = randomIntFromInterval(300,800);
+        let y = randomIntFromInterval(100,500);
         self.position.x = x;
         self.position.y = y;
         self.currentAngle = randomIntFromInterval(0,360);
 
-        var beeHtml = "<div class='bee' id='"+self.id+"'>bee</div>";
+        let beeHtml = "<div class='bee' id='"+self.id+"'>bee</div>";
         $("body").append(beeHtml);
         self.UpdateVisualLocation();
     };
@@ -124,5 +142,7 @@ var BeeModel = function() {
 };
 
 var bee1 = new BeeModel();
-//var bee2 = new BeeModel();
-//var bee3 = new BeeModel();
+var bee2 = new BeeModel();
+var bee3 = new BeeModel();
+var bee4 = new BeeModel();
+var bee5 = new BeeModel();
