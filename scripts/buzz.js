@@ -3,12 +3,20 @@ function randomIntFromInterval(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
 
+  $(document).ready(function() {
+    $(".new-bee-trigger").click(function() {
+        controller.MakeNewBee();
+    });
+  });
+
 var beeCounter = 0;
 var noiseCounter = 0;
 
 const turningLeft = 1;
 const goingStraight = 2;
 const turningRight = 3;
+
+
 
 var BeeModel = function() {
 
@@ -44,12 +52,10 @@ var BeeModel = function() {
         // this is a lazy way to put the noise slightly behind the bee
         setTimeout(function() { $("body").append(noiseHtml); }, 300);
         setTimeout(function() { 
-            console.log("going to hide " + noiseId);
-            $("#"+noiseId).hide(10000, function() {
-                console.log("hiding complete for " + noiseId);
+            $("#"+noiseId).hide(3000, function() {
                 $("#"+noiseId).remove();
             }); 
-        }, 2000);
+        }, 5000);
         
 
         self.phraseIndex += 1;
@@ -110,25 +116,25 @@ var BeeModel = function() {
         }
 
     };
-    self.MoveLoop = function() {
-        self.MaybeChangeDirection();
-        self.Move();
-        setTimeout(self.MoveLoop, 100);
-    };
-    self.MoveLoop();
-    self.NoiseLoop = function() {
-        self.MakeNoise();
-        setTimeout(self.NoiseLoop, 300);
-    };
-    setTimeout(self.NoiseLoop, 300);    // start making noise after a little pause
+    // self.MoveLoop = function() {
+    //     self.MaybeChangeDirection();
+    //     self.Move();
+    //     setTimeout(self.MoveLoop, 100);
+    // };
+    // self.MoveLoop();
+    // self.NoiseLoop = function() {
+    //     self.MakeNoise();
+    //     setTimeout(self.NoiseLoop, 300);
+    // };
+    // setTimeout(self.NoiseLoop, 300);    // start making noise after a little pause
 
     self.Initialize = function() {
         beeCounter += 1;
         self.id = "bee"+ beeCounter;
         self.fullId = "#"+self.id;
 
-        let x = randomIntFromInterval(300,800);
-        let y = randomIntFromInterval(100,500);
+        let x = randomIntFromInterval(50,$(document).width()-50);
+        let y = randomIntFromInterval(50,$(document).height()-50);
         self.position.x = x;
         self.position.y = y;
         self.currentAngle = randomIntFromInterval(0,360);
@@ -141,8 +147,38 @@ var BeeModel = function() {
 
 };
 
-var bee1 = new BeeModel();
-var bee2 = new BeeModel();
-var bee3 = new BeeModel();
-var bee4 = new BeeModel();
-var bee5 = new BeeModel();
+var BeeController = function() {
+    var self = this;
+
+    self.bees = [];
+
+    self.MakeNewBee = function() {
+        var newBee = new BeeModel();
+        self.bees.push(newBee);
+    }
+
+    // start with five
+    self.MakeNewBee();
+    self.MakeNewBee();
+    self.MakeNewBee();
+    self.MakeNewBee();
+    self.MakeNewBee();
+
+    self.MoveLoop = function() {
+        for(let i = 0; i < self.bees.length; i++) {
+            self.bees[i].MaybeChangeDirection();
+            self.bees[i].Move();
+        }
+        setTimeout(self.MoveLoop, 100);
+    };
+    self.MoveLoop();
+    self.NoiseLoop = function() {
+        for(let i = 0; i < self.bees.length; i++) {
+            self.bees[i].MakeNoise();
+        }
+        setTimeout(self.NoiseLoop, 300);
+    };
+    setTimeout(self.NoiseLoop, 300);    // start making noise after a little pause
+};
+
+var controller = new BeeController();
