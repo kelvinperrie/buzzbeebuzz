@@ -7,6 +7,10 @@ function randomIntFromInterval(min, max) {
     $(".new-bee-trigger").click(function() {
         controller.MakeNewBee();
     });
+
+    $("body .bee").on("mouseenter", function() {
+        console.log("ouch")
+    })
   });
 
 var beeCounter = 0;
