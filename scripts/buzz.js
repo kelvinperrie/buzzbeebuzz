@@ -17,6 +17,20 @@ const goingStraight = 2;
 const turningRight = 3;
 
 
+function FadeStuff() {
+    $(".fadeMe").each(function() {
+        var opacity = $(this).css("opacity");
+        opacity -= 0.2;
+        if(opacity==0) {
+            $(this).remove();
+        } else {
+            $(this).css({ opacity: opacity });
+        }
+    });
+
+    setTimeout(FadeStuff,200);
+}
+FadeStuff();
 
 var BeeModel = function() {
 
@@ -37,6 +51,8 @@ var BeeModel = function() {
         $(self.fullId).css({ transform: "rotate("+self.currentAngle+"deg)" });
     };
 
+
+
     /*
     generate a buzz trail of text behind the bee
     */
@@ -52,9 +68,8 @@ var BeeModel = function() {
         // this is a lazy way to put the noise slightly behind the bee
         setTimeout(function() { $("body").append(noiseHtml); }, 300);
         setTimeout(function() { 
-            $("#"+noiseId).hide(3000, function() {
-                $("#"+noiseId).remove();
-            }); 
+            // after some time put in a class indicating this element can start fading out
+             $("#"+noiseId).addClass("fadeMe");
         }, 5000);
         
 
@@ -142,6 +157,7 @@ var BeeModel = function() {
         let beeHtml = "<div class='bee' id='"+self.id+"'>bee</div>";
         $("body").append(beeHtml);
         self.UpdateVisualLocation();
+        console.log("created bee "+beeCounter)
     };
     self.Initialize();
 
@@ -179,6 +195,30 @@ var BeeController = function() {
         setTimeout(self.NoiseLoop, 300);
     };
     setTimeout(self.NoiseLoop, 300);    // start making noise after a little pause
+
+    self.CullLostBees = function() {
+        let escapeFactor = 100;
+        let height = $(window).height() + escapeFactor;
+        let width = $(window).width() + escapeFactor;
+        let beesToCull = []; // collect the indexes of the bees we need to get rid of
+        for(let i = 0; i < self.bees.length; i++) {
+            if(self.bees[i].position.x > width || self.bees[i].position.x < -escapeFactor) {
+                beesToCull.push(i);
+            } else if(self.bees[i].position.y > height || self.bees[i].position.y < -escapeFactor) {
+                beesToCull.push(i);
+            }
+        }
+        // go through all the bees we don't want any more and remove them
+        // start at highest index otherwise it will jumble and remove wrong ones
+        for(let i = beesToCull.length; i > 0; i--) {
+            var index = beesToCull[i-1];
+            let beeId = self.bees[index].id;
+            self.bees.splice(index, 1); // remove from array
+            $("#"+beeId).remove();  // remove html
+        }
+        setTimeout(self.CullLostBees, 5000);
+    };
+    self.CullLostBees();
 };
 
 var controller = new BeeController();
