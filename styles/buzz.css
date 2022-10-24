@@ -42,3 +42,9 @@ a.button:hover{
     right: 1em;
     position: absolute;
 }
+
+.beeCountContainer {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+}

@@ -5,7 +5,8 @@ function randomIntFromInterval(min, max) {
 
   $(document).ready(function() {
     $(".new-bee-trigger").click(function() {
-        controller.MakeNewBee();
+        let count = $(this).data("count");
+        controller.MakeNewBee(count);
     });
 
     $("body .bee").on("mouseenter", function() {
@@ -172,17 +173,23 @@ var BeeController = function() {
 
     self.bees = [];
 
-    self.MakeNewBee = function() {
-        var newBee = new BeeModel();
-        self.bees.push(newBee);
+    self.UpdateBeeCount = function() {
+        $(".beeCountValue").html(self.bees.length);
+    };
+
+    self.MakeNewBee = function(count) {
+        if(count == null) {
+            count = 1;
+        }
+        for(let i = 0; i < count; i++) {
+            var newBee = new BeeModel();
+            self.bees.push(newBee);
+        }
+        self.UpdateBeeCount();
     }
 
     // start with five
-    self.MakeNewBee();
-    self.MakeNewBee();
-    self.MakeNewBee();
-    self.MakeNewBee();
-    self.MakeNewBee();
+    self.MakeNewBee(5);
 
     self.MoveLoop = function() {
         for(let i = 0; i < self.bees.length; i++) {
@@ -220,9 +227,11 @@ var BeeController = function() {
             self.bees.splice(index, 1); // remove from array
             $("#"+beeId).remove();  // remove html
         }
+        self.UpdateBeeCount();
         setTimeout(self.CullLostBees, 5000);
     };
     self.CullLostBees();
+
 };
 
 var controller = new BeeController();
